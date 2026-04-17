@@ -11,19 +11,20 @@ There are a total of 15 workstations, one switch on each side (internal and ISP)
 
 #### IP Address
 
-| Description      | IP              |
-| ---------------- | --------------- |
-| Internal Range   | 192.168.10.0/24 |
-| Internal Gateway | 192.168.10.1    |
-| WAN Range        | 200.1.1.0/28    |
-| ISP's Range      | 200.1.2.10      |
-| ISP's server     | 200.1.2.30      |
-| ISP's switch     | 200.1.2.10      |
+| Description  | Network         |
+| ------------ | --------------- |
+| Internal LAN | 192.168.10.0/24 |
+| WAN Link     | 200.1.1.0/24    |
+| ISP LAN      | 200.1.2.0/24    |
 
 ### Key Concepts Implemented
 
-- Flat network subnetting
-- (not sure what else)
+- [x] Flat network subnetting
+- [x] Layer 2 switching (MAC learning)
+- [x] ARP (IP -> MAC resolution)
+- [x] Static routing, Default gateway
+- [x] NAT (PAT Overload)
+- [x] End-to-end connectivity (LAN- > WAN -> server)
 
 ### Steps
 
@@ -42,24 +43,31 @@ There are a total of 15 workstations, one switch on each side (internal and ISP)
    - Switching still uses MAC, not IP.
 5. Configure router's hostname and IP address. Add local address to LAN facing and external address to WAN facing port.
    - Router connects two different network, enabling inter-network communication.
-6. Rename end hosts and manually add its IP, DNS, and default gateway. Uwsually subnet mask is auto added, but can also adjust.
+6. Rename end hosts and manually add its IP, DNS, and default gateway. Usually subnet mask is auto added, but can also adjust.
    - DNS for this projects is not required for IP-based testing, only for name resolution.
 7. Check local traffic between internal devices
-8. Apply PAT overload to the router on LAN router side, letting packet going out to share the same public IP.
+8. Configure PAT (NAT overload) on the internal router to translate private IPs into a single public IP.
 9. Add ISP connection
-   - Added second reouter to simulate ISP for full control of routing and return traffic
+   - Added second router to simulate ISP for full control of routing and return traffic
    - Ads switch and server (for internet connection check)
    - Assign WAN IP to the Router port that face the WAN. Assign internal ISP's IP to the switch.
-   - For the werver, update its IP address and ensure **http/https** service is on
-10. Try reaching ISP server through LAN workstations or end devices by doing **< server-ip >/index.html** or even just the server-ip through browser on ens devices
+   - For the server, update its IP address and ensure **http/https** service is on
+10. Try reaching ISP server through LAN workstations or end devices by doing **< server-ip >/index.html** or even just the server-ip through browser on end devices
 
 ### Validation and Testing
 
-- [x] Check workstations connection to the ISP server
-- [x] Check if the traffic coming out from LAN shows the wanted IP
-- [x] If the data sent to the ISP are able to return accordingly
+- [x] PC -> PC communication (LAN)
+- [x] PC -> Gateway reachability
+- [x] NAT translation verified
+- [x] PC -> ISP Server (HTTP access)
 
 ### Key learnings
 
-- I know about NAT, but PAT is new. It is a Port Address Translation that makes every traffic coming out from the router to a shared configured IP address.
-- I thought that reaching to the server don't need IP as how we user internet. But I forgot that DNS didn't exist here.
+- Learned how **PAT enables multiple private devices to share one public IP**
+- Realized **DNS is required for name-based access, otherwise must use IP**
+- Practiced troubleshooting using **packet flow and simulation tools**
+
+### Common Issues Faced
+- NAT configured but return traffic failed -> fixed dafault gateway
+- Could ping but not browse -> missing DNS/wrong URL
+- ISP simulation issues -> rpelaced modem with router
